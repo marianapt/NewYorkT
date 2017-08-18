@@ -1,11 +1,19 @@
 
 var articleData = [];
 
-$("#add-article").on("click", function(event) {
-
+$(document, ".btn").on("click", function(event) {
+  // console.log(event.target);
+  console.log($(event.target));
   event.preventDefault();
-  searchNYT($("#search-input").val())
-  $("#search-input").val('');
+  if ($(event.target).text() == "Search") {
+    console.log("Clicked search");
+    searchNYT($("#search").val())
+    // console.log(($("#search").val()));
+    $("#search").val('');
+  }
+  // searchNYT($("#search").val())
+  // $("#search").val('');
+  // searchNYT("fun");
 
 });
 
@@ -32,7 +40,7 @@ $("#add-article").on("click", function(event) {
       console.log(result);
       //TODO something with this data we got.
       articleData.push(result);
-      displayAllArticles();
+      displayAllArticles(5);
 
     }).fail(function(err) {
       throw err;
@@ -60,7 +68,7 @@ $("#add-article").on("click", function(event) {
       // articleData[-1]
       // articleData["0"].response.docs["0"].headline
       var newArticle = $("<div>").attr("id","stuff").text(articleData[0].response.docs[num].headline.main);
-      $("body").append(newArticle);
+      $("#response").append(newArticle);
     }
 
     function displayAllArticles(articleLimit) {
