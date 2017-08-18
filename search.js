@@ -1,41 +1,28 @@
 
 var articleData = [];
-// var articleLimit = 5;
 
+$("#add-article").on("click", function(event) {
 
-function displayArticle(num) {
-  //TODO display an article.
-  // articleData[-1]
-  // articleData["0"].response.docs["0"].headline
-  var newArticle = $("<div>").attr("id","stuff").text(articleData[0].response.docs[num].headline.main);
-  $("body").append(newArticle);
-}
+  event.preventDefault();
+  searchNYT($("#search-input").val())
+  $("#search-input").val('');
 
-function displayAllArticles(articleLimit) {
+});
 
-  articleData[0].response.docs.forEach(function(item, index){
-    // console.log(item);
-    if (index < articleLimit) {
-
-      console.log(index);
-      displayArticle(index);
-    }
-
-  });
-
-}
 
   function searchNYT(searchterm) {
 
     // Built by LucyBot. www.lucybot.com
     var url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-
+    // var apikey = "21fc1980c81e408891eb4b4709324562";
+    // var url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?api-key=b9f91d369ff59547cd47b931d8cbc56b:0:74623931&q=fun"
+    // url += '?' + "api-key=" + apikey + "&q=" + searchterm;
     url += '?' +
     $.param({
       'api-key': "21fc1980c81e408891eb4b4709324562",
       'q': searchterm,
-      // 'begin_date': '',
-      // 'end_date': '',
+      // 'begin_date': begindate,
+      // 'end_date': enddate,
       // 'page': numPages
     });
     $.ajax({
@@ -45,7 +32,7 @@ function displayAllArticles(articleLimit) {
       console.log(result);
       //TODO something with this data we got.
       articleData.push(result);
-      // displayArticle();
+      displayAllArticles();
 
     }).fail(function(err) {
       throw err;
@@ -66,5 +53,26 @@ function displayAllArticles(articleLimit) {
       //imageurl = "https://static01.nyt.com"
       //
 
+    }
 
-  }
+    function displayArticle(num) {
+      //TODO display an article.
+      // articleData[-1]
+      // articleData["0"].response.docs["0"].headline
+      var newArticle = $("<div>").attr("id","stuff").text(articleData[0].response.docs[num].headline.main);
+      $("body").append(newArticle);
+    }
+
+    function displayAllArticles(articleLimit) {
+
+      articleData[0].response.docs.forEach(function(item, index){
+        // console.log(item);
+        if (index < articleLimit) {
+
+          console.log(index);
+          displayArticle(index);
+        }
+
+      });
+
+    }
