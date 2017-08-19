@@ -1,30 +1,25 @@
 
 var articleData = [];
+var currentBatch = -1;
 
-$(document, ".btn").on("click", function(event) {
+$(document, "#search").on("click", function(event) {
   // console.log(event.target);
   console.log($(event.target));
-  event.preventDefault();
+
+
   if ($(event.target).text() == "Search") {
+    event.preventDefault();
     console.log("Clicked search");
     searchNYT($("#search").val())
-    // console.log(($("#search").val()));
     $("#search").val('');
   }
-  // searchNYT($("#search").val())
-  // $("#search").val('');
-  // searchNYT("fun");
 
 });
 
 
   function searchNYT(searchterm) {
-
-    // Built by LucyBot. www.lucybot.com
+    // Copied from the API docs, build the request.
     var url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-    // var apikey = "21fc1980c81e408891eb4b4709324562";
-    // var url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?api-key=b9f91d369ff59547cd47b931d8cbc56b:0:74623931&q=fun"
-    // url += '?' + "api-key=" + apikey + "&q=" + searchterm;
     url += '?' +
     $.param({
       'api-key': "21fc1980c81e408891eb4b4709324562",
@@ -38,9 +33,14 @@ $(document, ".btn").on("click", function(event) {
       method: 'GET',
     }).done(function(result) {
       console.log(result);
-      //TODO something with this data we got.
-      articleData.push(result);
-      displayAllArticles(5);
+      //save the data
+
+      if (result.response.docs.length > 0) {
+        articleData.push(result);
+        currentBatch++;
+        //display all up to the limit.
+        displayAllArticles(currentBatch, 5);
+      }
 
     }).fail(function(err) {
       throw err;
@@ -63,22 +63,54 @@ $(document, ".btn").on("click", function(event) {
 
     }
 
-    function displayArticle(num) {
-      //TODO display an article.
-      // articleData[-1]
-      // articleData["0"].response.docs["0"].headline
-      var newArticle = $("<div>").attr("id","stuff").text(articleData[0].response.docs[num].headline.main);
-      $("#response").append(newArticle);
+function generateBoostrapCard(articleHeadline, imgUrl, articleUrl, articleText) {
+  // console.log(articleText);
+  var newArticle = $("<div>").attr("class","article-card")
+  .append($("<img>").attr("class","article-img-top").attr("src", imgUrl));
+
+  var newBlock = $("<div>").attr("class","article-block");
+  newBlock.append($("<h4>").attr("class","article-title").text(articleHeadline));
+  newBlock.append($("<p>").attr("class","article-text").text(articleText));
+  newBlock.append($("<a>")
+        .attr("href",articleUrl)
+        .attr("class","btn btn-primary", "target","_blank")
+        .text("Read this article"));
+
+newArticle.append(newBlock);
+  //change html in here:
+  $("#response").append(newArticle);
+  //return to the other function
+  return newArticle;
+
+
+}
+
+    function displayArticle(currentBatch, currentArticle) {
+      var data = articleData[currentBatch].response.docs[currentArticle];
+      //display an article.
+      var headline  = data.headline.main;
+
+      if (data.multimedia.length != 0) {
+        var imgUrl = "https://static01.nyt.com/" + data.multimedia[data.multimedia.length - 1].url;
+      }
+
+
+      // var imgUrl = "https://www.placehold.it/75x75";
+      var articleUrl = data.web_url;
+      var articleText = data.snippet;
+      // $("#response").append(newArticle); .response.docs["0"].snippet
+      // console.log(articleText);
+      console.log(imgUrl);
+      $("#response").prepend(generateBoostrapCard(headline, imgUrl, articleUrl, articleText));
     }
 
-    function displayAllArticles(articleLimit) {
+    function displayAllArticles(currentBatch, articleLimit) {
 
-      articleData[0].response.docs.forEach(function(item, index){
-        // console.log(item);
-        if (index < articleLimit) {
 
+      articleData[currentBatch].response.docs.forEach(function(item, index){
+      if (index < articleLimit) {
           console.log(index);
-          displayArticle(index);
+          displayArticle(currentBatch, index);
         }
 
       });
